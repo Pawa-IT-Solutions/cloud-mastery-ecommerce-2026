@@ -17,6 +17,8 @@ function ShopNavigation() {
   const links = [
     { href: "/shop", label: "Home" },
     { href: "/shop/products", label: "Products" },
+    { href: "/shop/car-parts", label: "Car Parts" },
+    { href: "/shop/finance", label: "Finance" },
     { href: "/shop/orders", label: "My Orders" },
     { href: "/shop/cart", label: `Cart (${cartCount})` },
   ];

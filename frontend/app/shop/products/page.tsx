@@ -7,6 +7,25 @@ import { getProducts } from "../../api";
 import { useShop } from "../ShopProvider";
 import { ProductType } from "../../types/ProductType";
 
+const normalizeImageUrl = (url: string) => {
+  try {
+    const parsed = new URL(url);
+
+    // Console-style GCS URLs often return HTML; object URLs are fetchable by Next/Image.
+    if (parsed.hostname === "storage.cloud.google.com") {
+      parsed.hostname = "storage.googleapis.com";
+    }
+
+    if (parsed.hostname === "storage.googleapis.com") {
+      parsed.pathname = decodeURIComponent(parsed.pathname);
+    }
+
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+};
+
 export default function ShopProductsPage() {
   const { addToCart } = useShop();
   const [products, setProducts] = useState<ProductType[]>([]);
@@ -68,15 +87,19 @@ export default function ShopProductsPage() {
 
   const getProductImage = (product: ProductType) =>
     (() => {
+      console.log("Product image URL:", product);
+      
       const rawUrl =
         product.imageUrl ||
         product.image ||
         `https://placehold.co/600x400/png?text=${encodeURIComponent(product.name || "Product")}`;
 
+      const normalizedUrl = normalizeImageUrl(rawUrl);
+
       // Normalize legacy placehold URLs to PNG so Next/Image can optimize safely.
-      return rawUrl.includes("placehold.co/") && !rawUrl.includes("/png?")
-        ? rawUrl.replace(/\/(\d+x\d+)\?/, "/$1/png?")
-        : rawUrl;
+      return normalizedUrl.includes("placehold.co/") && !normalizedUrl.includes("/png?")
+        ? normalizedUrl.replace(/\/(\d+x\d+)\?/, "/$1/png?")
+        : normalizedUrl;
     })();
 
   const getFakeRating = (product: ProductType) => {

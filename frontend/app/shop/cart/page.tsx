@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { getCustomers } from "../../api";
+import { addOrder, getCustomers } from "../../api";
 import { CustomersType } from "../../types/CustomersType";
 import { useShop } from "../ShopProvider";
 
@@ -59,14 +59,38 @@ export default function ShopCartPage() {
       return;
     }
 
+    const checkoutCustomer = customers.find((customer) => customer.id === selectedCustomerId);
+
+    if (!checkoutCustomer) {
+      toast.error("Selected customer could not be found.");
+      return;
+    }
+
     setIsCheckingOut(true);
 
-    // Simulate checkout processing.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    try {
+      await addOrder({
+        customerId: selectedCustomerId,
+        orderAmount: cartTotal.toFixed(2),
+        orderDate: new Date().toISOString(),
+        description: `Shop checkout for ${checkoutCustomer.firstName} ${checkoutCustomer.lastName}`,
+        paymentMethod: "fake_checkout",
+        shippingAddress: checkoutCustomer.address || checkoutCustomer.city,
+        status: "pending",
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.cartQuantity,
+          unitCost: Number(item.unitCost),
+        })),
+      });
 
-    clearCart();
-    setIsCheckingOut(false);
-    toast.success("Checkout successful. This was a fake checkout flow.");
+      clearCart();
+      toast.success("Checkout saved. Order items were recorded for the selected user.");
+    } catch {
+      toast.error("Checkout failed. Could not save order items.");
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (

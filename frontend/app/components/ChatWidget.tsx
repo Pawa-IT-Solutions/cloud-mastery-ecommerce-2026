@@ -19,6 +19,7 @@ export default function ChatWidget() {
   const containerRef = useRef<HTMLElement>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [chatReady, setChatReady] = useState(false);
+  const [isFolded, setIsFolded] = useState(false);
 
   // Restore session from sessionStorage on page load
   useEffect(() => {
@@ -157,6 +158,7 @@ export default function ChatWidget() {
           .chat-header, [class*="header"] {
             background-color: #9a7a66ff !important;
             color: #ffffff !important;
+            padding-left: 48px !important;
           }
 
           /* Primary button / send button */
@@ -240,13 +242,54 @@ export default function ChatWidget() {
         right: "20px",
         zIndex: 99999,
         width: "400px",
-        height: "560px",
-        maxHeight: "560px",
+        height: isFolded ? "50px" : "560px",
+        maxHeight: isFolded ? "50px" : "560px",
         overflow: "hidden",
         borderRadius: "16px",
-        boxShadow: "0 8px 32px rgba(74,59,50,0.18)",
+        boxShadow: isFolded ? "0 4px 12px rgba(74,59,50,0.15)" : "0 8px 32px rgba(74,59,50,0.18)",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
+      <button
+        onClick={() => setIsFolded(!isFolded)}
+        style={{
+          position: "absolute",
+          left: "14px",
+          top: "13px",
+          zIndex: 100000,
+          background: "rgba(255, 255, 255, 0.15)",
+          border: "none",
+          borderRadius: "6px",
+          width: "24px",
+          height: "24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: "#000000",
+          transition: "background 0.2s, transform 0.3s",
+        }}
+        title={isFolded ? "Expand Agent" : "Collapse Agent"}
+        aria-label={isFolded ? "Expand Agent" : "Collapse Agent"}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform: isFolded ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.3s",
+          }}
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
       {!chatReady ? (
         <OnboardingForm onComplete={handleFormComplete} />
       ) : (

@@ -18,7 +18,6 @@ export default function ChatWidget() {
   const chatTitle = process.env.NEXT_PUBLIC_CHAT_TITLE || "Support Agent";
   const messengerRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLElement>(null);
-  const skipNextAssistantMessageRef = useRef(false);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [chatReady, setChatReady] = useState(false);
@@ -66,69 +65,8 @@ export default function ChatWidget() {
   useEffect(() => {
     const originalFetch = window.fetch;
 
-    const tryArmSkipFromBody = (bodyValue: unknown) => {
-      if (!bodyValue || typeof bodyValue !== "string") return;
-      if (bodyValue.toLowerCase().includes("view cart total")) {
-        skipNextAssistantMessageRef.current = true;
-      }
-    };
-
-    const skipFirstAssistantText = (payload: unknown) => {
-      if (!payload || typeof payload !== "object") return payload;
-
-      const mutable = payload as Record<string, unknown>;
-      let skipped = false;
-
-      const outputs = Array.isArray(mutable.outputs)
-        ? (mutable.outputs as Record<string, unknown>[])
-        : [];
-      for (const output of outputs) {
-        if (skipped) break;
-        if (typeof output.text === "string" && output.text.trim()) {
-          output.text = "";
-          skipped = true;
-        }
-      }
-
-      if (!skipped) {
-        const diagnosticInfo = mutable.diagnosticInfo;
-        if (diagnosticInfo && typeof diagnosticInfo === "object") {
-          const messages = Array.isArray(
-            (diagnosticInfo as Record<string, unknown>).messages,
-          )
-            ? ((diagnosticInfo as Record<string, unknown>).messages as Record<
-                string,
-                unknown
-              >[])
-            : [];
-
-          for (const message of messages) {
-            if (skipped) break;
-            const role =
-              typeof message.role === "string"
-                ? message.role.toLowerCase()
-                : "";
-            if (!role.includes("agent")) continue;
-
-            const chunks = Array.isArray(message.chunks)
-              ? (message.chunks as Record<string, unknown>[])
-              : [];
-            for (const chunk of chunks) {
-              if (typeof chunk.text === "string" && chunk.text.trim()) {
-                chunk.text = "";
-                skipped = true;
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      return mutable;
-    };
-
     window.fetch = async (...args) => {
-      const [resource, options] = args;
+      const [resource] = args;
       const url =
         typeof resource === "string" ? resource : (resource as any)?.url;
 
@@ -176,58 +114,7 @@ export default function ChatWidget() {
         }
       }
 
-      const isCesRunSession =
-        typeof url === "string" &&
-        url.includes("ces.googleapis.com") &&
-        (url.includes(":runSession") ||
-          url.includes(":converseConversation") ||
-          url.includes(":detectIntent"));
-
-      if (isCesRunSession) {
-        try {
-          if (typeof options?.body === "string") {
-            tryArmSkipFromBody(options.body);
-          }
-
-          if (typeof Request !== "undefined" && resource instanceof Request) {
-            const requestBody = await resource.clone().text();
-            tryArmSkipFromBody(requestBody);
-          }
-        } catch {
-          // Ignore request body read errors
-        }
-      }
-
-      const response = await originalFetch(...args);
-
-      if (!isCesRunSession) {
-        return response;
-      }
-
-      const contentType = response.headers.get("content-type") || "";
-      if (!contentType.toLowerCase().includes("application/json")) {
-        return response;
-      }
-
-      try {
-        const payload = await response.clone().json();
-        const shouldSkip = skipNextAssistantMessageRef.current;
-        if (shouldSkip) {
-          skipNextAssistantMessageRef.current = false;
-        }
-
-        const sanitized = shouldSkip
-          ? skipFirstAssistantText(payload)
-          : payload;
-
-        return new Response(JSON.stringify(sanitized), {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-        });
-      } catch {
-        return response;
-      }
+      return originalFetch(...args);
     };
 
     return () => {
@@ -422,8 +309,8 @@ export default function ChatWidget() {
           onClick={() => setIsFolded(!isFolded)}
           style={{
             position: "absolute",
-            left: isFolded ? "16px" : "14px",
-            top: isFolded ? "16px" : "15px",
+            left: isFolded ? "16px" : "4px",
+            top: isFolded ? "16px" : "21px",
             zIndex: 100000,
             background: isFolded
               ? "rgba(255, 255, 255, 0.15)"
@@ -482,7 +369,7 @@ export default function ChatWidget() {
                 />
               </>
             ) : (
-              <polyline points="6 9 12 15 18 9"></polyline>
+              <polyline className="" points="0"></polyline>
             )}
           </svg>
         </button>

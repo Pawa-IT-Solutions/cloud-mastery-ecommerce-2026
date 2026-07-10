@@ -62,7 +62,7 @@ export default function ChatWidget() {
     }
   }, []);
 
-  // Intercept window.fetch to capture the true session ID 
+  // Intercept window.fetch to capture the true session ID
   useEffect(() => {
     const originalFetch = window.fetch;
 
@@ -79,7 +79,9 @@ export default function ChatWidget() {
       const mutable = payload as Record<string, unknown>;
       let skipped = false;
 
-      const outputs = Array.isArray(mutable.outputs) ? (mutable.outputs as Record<string, unknown>[]) : [];
+      const outputs = Array.isArray(mutable.outputs)
+        ? (mutable.outputs as Record<string, unknown>[])
+        : [];
       for (const output of outputs) {
         if (skipped) break;
         if (typeof output.text === "string" && output.text.trim()) {
@@ -91,16 +93,26 @@ export default function ChatWidget() {
       if (!skipped) {
         const diagnosticInfo = mutable.diagnosticInfo;
         if (diagnosticInfo && typeof diagnosticInfo === "object") {
-          const messages = Array.isArray((diagnosticInfo as Record<string, unknown>).messages)
-            ? ((diagnosticInfo as Record<string, unknown>).messages as Record<string, unknown>[])
+          const messages = Array.isArray(
+            (diagnosticInfo as Record<string, unknown>).messages,
+          )
+            ? ((diagnosticInfo as Record<string, unknown>).messages as Record<
+                string,
+                unknown
+              >[])
             : [];
 
           for (const message of messages) {
             if (skipped) break;
-            const role = typeof message.role === "string" ? message.role.toLowerCase() : "";
+            const role =
+              typeof message.role === "string"
+                ? message.role.toLowerCase()
+                : "";
             if (!role.includes("agent")) continue;
 
-            const chunks = Array.isArray(message.chunks) ? (message.chunks as Record<string, unknown>[]) : [];
+            const chunks = Array.isArray(message.chunks)
+              ? (message.chunks as Record<string, unknown>[])
+              : [];
             for (const chunk of chunks) {
               if (typeof chunk.text === "string" && chunk.text.trim()) {
                 chunk.text = "";
@@ -117,9 +129,15 @@ export default function ChatWidget() {
 
     window.fetch = async (...args) => {
       const [resource, options] = args;
-      const url = typeof resource === "string" ? resource : (resource as any)?.url;
+      const url =
+        typeof resource === "string" ? resource : (resource as any)?.url;
 
-      if (url && (url.includes(":runSession") || url.includes(":converseConversation") || url.includes(":detectIntent"))) {
+      if (
+        url &&
+        (url.includes(":runSession") ||
+          url.includes(":converseConversation") ||
+          url.includes(":detectIntent"))
+      ) {
         try {
           const match = url.match(/\/sessions\/([^:]+):/);
           if (match && match[1]) {
@@ -127,7 +145,10 @@ export default function ChatWidget() {
 
             if (sessionStorage.getItem("agent-session-id") !== agentSessionId) {
               sessionStorage.setItem("agent-session-id", agentSessionId);
-              console.debug("[ChatWidget] Intercepted agent session ID from URL:", agentSessionId);
+              console.debug(
+                "[ChatWidget] Intercepted agent session ID from URL:",
+                agentSessionId,
+              );
 
               window.dispatchEvent(new Event("hazel-session-changed"));
 
@@ -140,7 +161,12 @@ export default function ChatWidget() {
                     name: stored.name,
                     phone: stored.phone,
                     location: stored.location,
-                  }).catch(e => console.warn("[ChatWidget] Failed to sync session to Python backend", e));
+                  }).catch((e) =>
+                    console.warn(
+                      "[ChatWidget] Failed to sync session to Python backend",
+                      e,
+                    ),
+                  );
                 }
               }
             }
@@ -153,7 +179,9 @@ export default function ChatWidget() {
       const isCesRunSession =
         typeof url === "string" &&
         url.includes("ces.googleapis.com") &&
-        (url.includes(":runSession") || url.includes(":converseConversation") || url.includes(":detectIntent"));
+        (url.includes(":runSession") ||
+          url.includes(":converseConversation") ||
+          url.includes(":detectIntent"));
 
       if (isCesRunSession) {
         try {
@@ -188,7 +216,9 @@ export default function ChatWidget() {
           skipNextAssistantMessageRef.current = false;
         }
 
-        const sanitized = shouldSkip ? skipFirstAssistantText(payload) : payload;
+        const sanitized = shouldSkip
+          ? skipFirstAssistantText(payload)
+          : payload;
 
         return new Response(JSON.stringify(sanitized), {
           status: response.status,
@@ -216,7 +246,7 @@ export default function ChatWidget() {
       containerRef.current.setAttribute("chat-title", chatTitle);
       containerRef.current.setAttribute(
         "chat-title-icon",
-        "https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png"
+        "https://gstatic.com/dialogflow-console/common/assets/ccai-favicons/conversational_agents.png",
       );
       containerRef.current.setAttribute("enable-file-upload", "true");
     }
@@ -229,7 +259,7 @@ export default function ChatWidget() {
           customerName: session.name,
           customerPhone: session.phone,
           customerLocation: session.location,
-        })
+        }),
       );
     }
 
@@ -244,7 +274,7 @@ export default function ChatWidget() {
               enableRecaptcha: false,
             },
             enableWelcomeEvent: true,
-          })
+          }),
         );
       }
 
@@ -344,9 +374,13 @@ export default function ChatWidget() {
     if (!container) return;
 
     const handleContainerClick = (event: Event) => {
-      const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+      const path =
+        typeof event.composedPath === "function" ? event.composedPath() : [];
       const clickedCloseButton = path.some((node) => {
-        return node instanceof HTMLElement && node.tagName.toLowerCase() === "chat-messenger-close-button";
+        return (
+          node instanceof HTMLElement &&
+          node.tagName.toLowerCase() === "chat-messenger-close-button"
+        );
       });
 
       if (clickedCloseButton) {
@@ -370,64 +404,89 @@ export default function ChatWidget() {
         right: "16px",
         zIndex: 99999,
         width: isFolded ? "56px" : "min(400px, calc(100vw - 24px))",
-        height: isFolded ? "56px" : "min(560px, calc(100vh - 24px))",
-        maxHeight: isFolded ? "56px" : "min(560px, calc(100vh - 24px))",
+        height: isFolded ? "56px" : "500px",
+        maxHeight: isFolded ? "56px" : "500px",
         overflow: "hidden",
         background: "#eeeae6",
         borderRadius: isFolded ? "9999px" : "28px",
         transformOrigin: "bottom right",
-        boxShadow: isFolded ? "0 4px 12px rgba(74,59,50,0.15)" : "0 8px 32px rgba(74,59,50,0.18)",
-        transition: "width 0.36s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.36s cubic-bezier(0.25, 0.8, 0.25, 1), border-radius 0.18s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.36s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        boxShadow: isFolded
+          ? "0 4px 12px rgba(74,59,50,0.15)"
+          : "0 8px 32px rgba(74,59,50,0.18)",
+        transition:
+          "width 0.36s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.36s cubic-bezier(0.25, 0.8, 0.25, 1), border-radius 0.18s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.36s cubic-bezier(0.25, 0.8, 0.25, 1)",
       }}
     >
-      <button
-        onClick={() => setIsFolded(!isFolded)}
-        style={{
-          position: "absolute",
-          left: isFolded ? "16px" : "270px",
-          top: isFolded ? "16px" : "20px",
-          zIndex: 100000,
-          background: isFolded ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.15)",
-          border: "none",
-          borderRadius: "6px",
-          width: "24px",
-          height: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: isFolded ? "#4a3b32" : "#898989",
-          transition: "background 0.2s, transform 0.9s",
-        }}
-        title={isFolded ? "Expand Agent" : "Collapse Agent"}
-        aria-label={isFolded ? "Expand Agent" : "Collapse Agent"}
-      >
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="relative">
+        <button
+          onClick={() => setIsFolded(!isFolded)}
           style={{
-            transform: isFolded ? "none" : "rotate(0deg)",
-            transition: "transform 0.3s",
+            position: "absolute",
+            left: isFolded ? "16px" : "14px",
+            top: isFolded ? "16px" : "15px",
+            zIndex: 100000,
+            background: isFolded
+              ? "rgba(255, 255, 255, 0.15)"
+              : "rgba(255, 255, 255, 0.15)",
+            border: "none",
+            borderRadius: "6px",
+            width: "24px",
+            height: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: isFolded ? "#4a3b32" : "#898989",
+            transition: "background 0.2s, transform 0.9s",
           }}
+          title={isFolded ? "Expand Agent" : "Collapse Agent"}
+          aria-label={isFolded ? "Expand Agent" : "Collapse Agent"}
         >
-          {isFolded ? (
-            <>
-              <path d="M21 11.5C21 16.19 16.97 20 12 20C10.61 20 9.28 19.7 8.1 19.15L4 20L4.9 16.49C3.72 15.09 3 13.36 3 11.5C3 6.81 7.03 3 12 3C16.97 3 21 6.81 21 11.5Z" />
-              <circle cx="9" cy="11.5" r="0.7" fill="currentColor" stroke="none" />
-              <circle cx="12" cy="11.5" r="0.7" fill="currentColor" stroke="none" />
-              <circle cx="15" cy="11.5" r="0.7" fill="currentColor" stroke="none" />
-            </>
-          ) : (
-            <polyline points="6 9 12 15 18 9"></polyline>
-          )}
-        </svg>
-      </button>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transform: isFolded ? "none" : "rotate(0deg)",
+              transition: "transform 0.3s",
+            }}
+          >
+            {isFolded ? (
+              <>
+                <path d="M21 11.5C21 16.19 16.97 20 12 20C10.61 20 9.28 19.7 8.1 19.15L4 20L4.9 16.49C3.72 15.09 3 13.36 3 11.5C3 6.81 7.03 3 12 3C16.97 3 21 6.81 21 11.5Z" />
+                <circle
+                  cx="9"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="12"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="15"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+              </>
+            ) : (
+              <polyline points="6 9 12 15 18 9"></polyline>
+            )}
+          </svg>
+        </button>
+      </div>
 
       <div
         style={{
@@ -447,9 +506,14 @@ export default function ChatWidget() {
             style={{
               width: "100%",
               height: "100%",
+              transform: "none",
               display: "block",
+              position: "relative",
+              inset: "auto",
+              clipPath: "none",
             }}
           >
+            <div></div>
             <chat-messenger-container ref={containerRef}>
               <chat-reset-session-button
                 slot="titlebar-actions"
@@ -459,6 +523,9 @@ export default function ChatWidget() {
                 slot="titlebar-actions"
                 title-text="Close"
               ></chat-messenger-close-button>
+              <div>
+                
+              </div>
             </chat-messenger-container>
           </chat-messenger>
         )}

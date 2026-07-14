@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createSession } from "../api";
 
 interface OnboardingFormProps {
   onComplete: (session: { sessionId: string; name: string; phone: string; location: string }) => void;
@@ -31,9 +30,8 @@ export default function OnboardingForm({ onComplete }: OnboardingFormProps) {
     setLoading(true);
     try {
       const sessionId = crypto.randomUUID();
-      await createSession({ sessionId, name: name.trim(), phone: phone.trim(), location: location.trim() });
-
-      // Persist to sessionStorage — cleared automatically on tab close / refresh
+      // Persist locally first. The canonical backend session ID is synced once
+      // the chat SDK exposes the real agent session ID.
       const session = { sessionId, name: name.trim(), phone: phone.trim(), location: location.trim(), createdAt: Date.now() };
       sessionStorage.setItem("hazel-session", JSON.stringify(session));
 

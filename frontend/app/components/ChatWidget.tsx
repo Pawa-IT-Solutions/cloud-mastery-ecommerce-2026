@@ -81,7 +81,13 @@ export default function ChatWidget() {
           if (match && match[1]) {
             const agentSessionId = match[1];
 
-            if (sessionStorage.getItem("agent-session-id") !== agentSessionId) {
+            const currentAgentSessionId = sessionStorage.getItem("agent-session-id");
+            const storedStr = sessionStorage.getItem("hazel-session");
+            const stored = storedStr ? JSON.parse(storedStr) : null;
+            const needsCanonicalSync =
+              !!stored?.name && stored.sessionId !== agentSessionId;
+
+            if (currentAgentSessionId !== agentSessionId || needsCanonicalSync) {
               sessionStorage.setItem("agent-session-id", agentSessionId);
               console.debug(
                 "[ChatWidget] Intercepted agent session ID from URL:",
@@ -90,10 +96,18 @@ export default function ChatWidget() {
 
               window.dispatchEvent(new Event("hazel-session-changed"));
 
-              const storedStr = sessionStorage.getItem("hazel-session");
-              if (storedStr) {
-                const stored = JSON.parse(storedStr);
-                if (stored.name) {
+              if (stored?.name) {
+                  const canonicalSession = {
+                    ...stored,
+                    sessionId: agentSessionId,
+                  };
+                  sessionStorage.setItem(
+                    "hazel-session",
+                    JSON.stringify(canonicalSession),
+                  );
+                  setSession(canonicalSession);
+                  window.dispatchEvent(new Event("hazel-session-changed"));
+
                   await createSession({
                     sessionId: agentSessionId,
                     name: stored.name,
@@ -105,7 +119,6 @@ export default function ChatWidget() {
                       e,
                     ),
                   );
-                }
               }
             }
           }

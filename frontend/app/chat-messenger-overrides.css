@@ -14,7 +14,7 @@ chat-messenger.slide-over {
   left: auto !important;
   top: auto !important;
   position: fixed !important;
-  border-radius: 40px !important;
+  border-radius: 28px !important;
   overflow: hidden !important;
   z-index: 99999 !important;
 }
@@ -41,6 +41,6 @@ chat-messenger.slide-over.messenger-hidden {
     min-width: 0 !important;
     right: 12px !important;
     bottom: 12px !important;
-    border-radius: 40px !important;
+    border-radius: 28px !important;
   }
 }

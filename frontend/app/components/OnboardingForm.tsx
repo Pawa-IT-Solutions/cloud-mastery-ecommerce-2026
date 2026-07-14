@@ -101,7 +101,7 @@ export default function OnboardingForm({ onComplete }: OnboardingFormProps) {
           <label style={labelStyle}>Full name</label>
           <input
             type="text"
-            placeholder="e.g. Laura Wangari"
+            placeholder="e.g. Amara Osei"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={inputStyle}

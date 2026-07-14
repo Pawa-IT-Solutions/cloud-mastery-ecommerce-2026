@@ -1,6 +1,6 @@
 # Shop Standalone App
-
-This folder contains a standalone storefront split from the main dashboard:
+CLoud mastery [Enter Your Name Here]
+This folder contains a standalone storefront:
 
 - `frontend/`: Next.js storefront available at `/shop`
 - `backend/`: NestJS API for storefront data

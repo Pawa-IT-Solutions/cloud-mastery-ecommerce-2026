@@ -8,7 +8,7 @@ SA_NAME="${SA_NAME:-github-deploy-sa}"
 # WIF/AUTH project (where workload identity pool/provider and service account live)
 WIF_PROJECT_ID="${WIF_PROJECT_ID:-${PROJECT_ID:-$(gcloud config get-value project)}}"
 # Deploy target project (Cloud Run/Functions/Cloud SQL resources live here)
-DEPLOY_PROJECT_ID="${DEPLOY_PROJECT_ID:-${PROJECT_ID:-${WIF_PROJECT_ID}}}"
+DEPLOY_PROJECT_ID="${DEPLOY_PROJECT_ID:-${WIF_PROJECT_ID}}"
 
 WIF_PROJECT_NUMBER="${WIF_PROJECT_NUMBER:-$(gcloud projects describe "${WIF_PROJECT_ID}" --format='value(projectNumber)')}"
 DEPLOY_PROJECT_NUMBER="${DEPLOY_PROJECT_NUMBER:-$(gcloud projects describe "${DEPLOY_PROJECT_ID}" --format='value(projectNumber)')}"
@@ -17,10 +17,6 @@ WIF_PROVIDER_ID="${WIF_PROVIDER_ID:-github-provider-v1}"
 GITHUB_OWNER="${GITHUB_OWNER:-Pawa-IT-Solutions}"
 GITHUB_REPO="${GITHUB_REPO:-cloud-mastery-ecommerce-2026}"
 MYSQL_PRISMA_SECRET_NAME="${MYSQL_PRISMA_SECRET_NAME:-MYSQL_PRISMA_URL}"
-BIGQUERY_CONNECTION_ID="${BIGQUERY_CONNECTION_ID:-agent-builder-conn}"
-BIGQUERY_CONNECTION_LOCATION="${BIGQUERY_CONNECTION_LOCATION:-us}"
-BIGQUERY_CONNECTION_DISPLAY_NAME="${BIGQUERY_CONNECTION_DISPLAY_NAME:-discoveryengine-connection}"
-MAPS_API_ADMIN_ROLE="${MAPS_API_ADMIN_ROLE:-roles/mapsplatform.admin}"
 
 # Optional DB inputs for secret bootstrap.
 # If MYSQL_PRISMA_URL is provided, it is used directly.
@@ -37,12 +33,10 @@ CLOUDSQL_INSTANCE_CONNECTION_NAME="${CLOUDSQL_INSTANCE_CONNECTION_NAME:-}"
 SA_EMAIL="${SA_NAME}@${WIF_PROJECT_ID}.iam.gserviceaccount.com"
 REPO_PRINCIPAL="principalSet://iam.googleapis.com/projects/${WIF_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL_ID}/attribute.repository/${GITHUB_OWNER}/${GITHUB_REPO}"
 WIF_PROVIDER_RESOURCE="projects/${WIF_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL_ID}/providers/${WIF_PROVIDER_ID}"
-DISCOVERY_ENGINE_SA="service-${DEPLOY_PROJECT_NUMBER}@gcp-sa-discoveryengine.iam.gserviceaccount.com"
 
 echo "WIF Project: ${WIF_PROJECT_ID} (${WIF_PROJECT_NUMBER})"
 echo "Deploy Project: ${DEPLOY_PROJECT_ID} (${DEPLOY_PROJECT_NUMBER})"
 echo "Service Account: ${SA_EMAIL}"
-echo "Discovery Engine SA: ${DISCOVERY_ENGINE_SA}"
 echo "Repo Principal: ${REPO_PRINCIPAL}"
 echo "WIF Provider: ${WIF_PROVIDER_RESOURCE}"
 
@@ -153,59 +147,6 @@ for BUILD_SA in "${BUILD_SERVICE_ACCOUNTS[@]}"; do
   done
 done
 
-echo "Ensuring BigQuery Cloud Resource connection exists..."
-if ! bq show --connection --project_id="${DEPLOY_PROJECT_ID}" --location="${BIGQUERY_CONNECTION_LOCATION}" "${BIGQUERY_CONNECTION_ID}" >/dev/null 2>&1; then
-  bq mk --connection \
-    --display_name="${BIGQUERY_CONNECTION_DISPLAY_NAME}" \
-    --connection_type=CLOUD_RESOURCE \
-    --project_id="${DEPLOY_PROJECT_ID}" \
-    --location="${BIGQUERY_CONNECTION_LOCATION}" \
-    "${BIGQUERY_CONNECTION_ID}"
-  echo "Created BigQuery connection: ${BIGQUERY_CONNECTION_ID} (${BIGQUERY_CONNECTION_LOCATION})"
-else
-  echo "BigQuery connection already exists: ${BIGQUERY_CONNECTION_ID} (${BIGQUERY_CONNECTION_LOCATION})"
-fi
-
-echo "Resolving BigQuery connection service account..."
-CONNECTION_SERVICE_ACCOUNT="$(bq show --format=prettyjson --connection --project_id="${DEPLOY_PROJECT_ID}" --location="${BIGQUERY_CONNECTION_LOCATION}" "${BIGQUERY_CONNECTION_ID}" | sed -n 's/.*"serviceAccountId": "\([^"]*\)".*/\1/p' | head -n1)"
-
-if [[ -z "${CONNECTION_SERVICE_ACCOUNT}" ]]; then
-  echo "Failed to read serviceAccountId from BigQuery connection ${BIGQUERY_CONNECTION_ID}."
-  echo "Ensure the connection exists and that bq CLI has access."
-  exit 1
-fi
-
-echo "Granting BigQuery Data Viewer to BigQuery connection service account..."
-echo "Connection service account member: serviceAccount:${CONNECTION_SERVICE_ACCOUNT}"
-gcloud projects add-iam-policy-binding "${DEPLOY_PROJECT_ID}" \
-  --member "serviceAccount:${CONNECTION_SERVICE_ACCOUNT}" \
-  --role "roles/bigquery.dataViewer" \
-  --condition=None \
-  --quiet \
-  --format=none
-
-echo "Granting Discovery Engine service account BigQuery + logging + Artifact Registry roles..."
-echo "Discovery Engine member: serviceAccount:${DISCOVERY_ENGINE_SA}"
-for ROLE in \
-  roles/artifactregistry.admin \
-  roles/artifactregistry.writer \
-  roles/bigquery.connectionUser \
-  roles/bigquery.dataViewer \
-  roles/bigquery.jobUser \
-  roles/bigquery.readSessionUser \
-  roles/logging.admin \
-  roles/logging.bucketWriter \
-  roles/logging.viewer
-do
-  gcloud projects add-iam-policy-binding "${DEPLOY_PROJECT_ID}" \
-    --member "serviceAccount:${DISCOVERY_ENGINE_SA}" \
-    --role "${ROLE}" \
-    --condition=None \
-    --quiet \
-    --format=none
-  echo "Assigned to ${DISCOVERY_ENGINE_SA}: ${ROLE}"
-done
-
 echo "Granting WIF principal impersonation permissions on service account..."
 gcloud iam service-accounts add-iam-policy-binding "${SA_EMAIL}" \
   --project "${WIF_PROJECT_ID}" \
@@ -252,4 +193,4 @@ printf '%s\n' "Done. Set these GitHub secrets:" \
   "GCP_DEPLOYER_SERVICE_ACCOUNT_EMAIL=${SA_EMAIL}" \
   "GCP_WORKLOAD_IDENTITY_PROVIDER=${WIF_PROVIDER_RESOURCE}"
 
-echo "Optional overrides for reruns: SA_NAME, WIF_PROJECT_ID, WIF_PROJECT_NUMBER, DEPLOY_PROJECT_ID, WIF_POOL_ID, WIF_PROVIDER_ID, GITHUB_OWNER, GITHUB_REPO, BIGQUERY_CONNECTION_ID, BIGQUERY_CONNECTION_LOCATION, BIGQUERY_CONNECTION_DISPLAY_NAME, MAPS_API_ADMIN_ROLE"
+echo "Optional overrides for reruns: SA_NAME, WIF_PROJECT_ID, WIF_PROJECT_NUMBER, DEPLOY_PROJECT_ID, WIF_POOL_ID, WIF_PROVIDER_ID, GITHUB_OWNER, GITHUB_REPO"

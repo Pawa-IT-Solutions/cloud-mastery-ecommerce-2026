@@ -240,6 +240,8 @@ export default function ChatWidget() {
     setIsFolded(true);
   };
 
+  const isContentVisible = !isFolded;
+
   // Sync CES titlebar close action with local fold state.
   useEffect(() => {
     const container = containerRef.current;

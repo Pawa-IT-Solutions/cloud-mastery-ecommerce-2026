@@ -25,87 +25,6 @@ const PESAPAL_PLACEHOLDER_EMAIL = process.env.PESAPAL_PLACEHOLDER_EMAIL || "demo
 // BIGQUERY CONFIG & DATA ACCESS LOGIC
 // ==========================================
 const bigquery = new BigQuery({ projectId: "pawait-data-hub" });
-const SESSION_TABLE =
-  process.env.SESSION_TABLE || "pawait-data-hub.cloud_mastery.cart_sessions";
-let ensureSessionTablePromise = null;
-
-function sanitizeSession(session = {}) {
-  return {
-    name: session.name || "",
-    phone: session.phone || "",
-    location: session.location || "",
-  };
-}
-
-async function ensureSessionTable() {
-  if (!ensureSessionTablePromise) {
-    ensureSessionTablePromise = bigquery.query({
-      query: `
-        CREATE TABLE IF NOT EXISTS \`${SESSION_TABLE}\` (
-          sessionId STRING NOT NULL,
-          name STRING,
-          phone STRING,
-          location STRING,
-          createdAt TIMESTAMP,
-          updatedAt TIMESTAMP
-        )
-      `,
-    });
-  }
-
-  await ensureSessionTablePromise;
-}
-
-async function upsertSession(sessionId, session) {
-  const payload = sanitizeSession(session);
-  await ensureSessionTable();
-  await bigquery.query({
-    query: `
-      MERGE \`${SESSION_TABLE}\` T
-      USING (
-        SELECT
-          @sessionId AS sessionId,
-          @name AS name,
-          @phone AS phone,
-          @location AS location,
-          CURRENT_TIMESTAMP() AS nowTs
-      ) S
-      ON T.sessionId = S.sessionId
-      WHEN MATCHED THEN
-        UPDATE SET
-          name = S.name,
-          phone = S.phone,
-          location = S.location,
-          updatedAt = S.nowTs
-      WHEN NOT MATCHED THEN
-        INSERT (sessionId, name, phone, location, createdAt, updatedAt)
-        VALUES (S.sessionId, S.name, S.phone, S.location, S.nowTs, S.nowTs)
-    `,
-    params: {
-      sessionId,
-      name: payload.name,
-      phone: payload.phone,
-      location: payload.location,
-    },
-  });
-}
-
-async function readSessionFromStore(sessionId) {
-  await ensureSessionTable();
-  const [rows] = await bigquery.query({
-    query: `
-      SELECT name, phone, location
-      FROM \`${SESSION_TABLE}\`
-      WHERE sessionId = @sessionId
-      ORDER BY updatedAt DESC
-      LIMIT 1
-    `,
-    params: { sessionId },
-  });
-
-  if (!rows.length) return null;
-  return sanitizeSession(rows[0]);
-}
 
 async function getProduct(productId) {
   const query = `
@@ -271,47 +190,20 @@ app.post("/askToModifyCart", (req, res) => {
 // CHECKOUT & SESSION ENDPOINTS
 // ==========================================
 
-app.post("/session", async (req, res) => {
+app.post("/session", (req, res) => {
   const { sessionId, name, phone, location } = req.body;
-  if (!sessionId) {
-    return res.status(400).json({ message: "sessionId is required" });
-  }
-
   console.log("Received session payload:", req.body);
-  const session = sanitizeSession({ name, phone, location });
-  SESSIONS[sessionId] = session;
-
-  try {
-    await upsertSession(sessionId, session);
-  } catch (error) {
-    // Keep serving from memory if warehouse write fails temporarily.
-    console.error("Failed to persist session in BigQuery:", error.message);
-  }
-
-  const responseData = { success: true, session };
+  SESSIONS[sessionId] = { name: name || "", phone: phone || "", location: location || "" };
+  const responseData = { success: true, session: SESSIONS[sessionId] };
   console.log("Returning response:", responseData);
   res.status(200).json(responseData);
 });
 
-app.get("/session/:sessionId", async (req, res) => {
-  const sessionId = req.params.sessionId;
-  let session = SESSIONS[sessionId] || null;
-
+app.get("/session/:sessionId", (req, res) => {
+  const session = SESSIONS[req.params.sessionId];
   if (!session) {
-    try {
-      session = await readSessionFromStore(sessionId);
-      if (session) {
-        SESSIONS[sessionId] = session;
-      }
-    } catch (error) {
-      console.error("Failed to read session from BigQuery:", error.message);
-    }
+    return res.status(404).json({ message: `No session found for '${req.params.sessionId}'.` });
   }
-
-  if (!session) {
-    return res.status(404).json({ message: `No session found for '${sessionId}'.` });
-  }
-
   res.status(200).json({ success: true, session });
 });
 

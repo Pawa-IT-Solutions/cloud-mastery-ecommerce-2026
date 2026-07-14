@@ -231,7 +231,41 @@ export default function ChatWidget() {
     setChatReady(true);
   };
 
-  // Widget is invisible until deployment name is set in .env
+  const clearSessionAndFold = () => {
+    sessionStorage.removeItem("hazel-session");
+    sessionStorage.removeItem("agent-session-id");
+    sessionStorage.removeItem("shop-cart-items");
+    setSession(null);
+    setChatReady(false);
+    setIsFolded(true);
+  };
+
+  // Sync CES titlebar close action with local fold state.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleContainerClick = (event: Event) => {
+      const path =
+        typeof event.composedPath === "function" ? event.composedPath() : [];
+      const clickedCloseButton = path.some((node) => {
+        return (
+          node instanceof HTMLElement &&
+          node.tagName.toLowerCase() === "chat-messenger-close-button"
+        );
+      });
+
+      if (clickedCloseButton) {
+        clearSessionAndFold();
+      }
+    };
+
+    container.addEventListener("click", handleContainerClick, true);
+    return () => {
+      container.removeEventListener("click", handleContainerClick, true);
+    };
+  }, [chatReady]);
+
   if (!deploymentName) return null;
 
   return (
@@ -250,85 +284,159 @@ export default function ChatWidget() {
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
-      <button
-        onClick={() => setIsFolded(!isFolded)}
-        style={{
-          position: "absolute",
-          left: "14px",
-          top: "13px",
-          zIndex: 100000,
-          background: "rgba(255, 255, 255, 0.15)",
-          border: "none",
-          borderRadius: "6px",
-          width: "24px",
-          height: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: "#000000",
-          transition: "background 0.2s, transform 0.3s",
-        }}
-        title={isFolded ? "Expand Agent" : "Collapse Agent"}
-        aria-label={isFolded ? "Expand Agent" : "Collapse Agent"}
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      <div className="relative">
+        <button
+          onClick={() => setIsFolded(!isFolded)}
           style={{
-            transform: isFolded ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.3s",
+            position: "absolute",
+            left: isFolded ? "14px" : "360px",
+            top: isFolded ? "16px" : "18px",
+            zIndex: 100,
+            background: isFolded
+              ? "rgba(255, 255, 255, 0.15)"
+              : "rgba(255, 255, 255, 0.15)",
+            border: "none",
+            borderRadius: "6px",
+            width: "24px",
+            height: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: isFolded ? "#4a3b32" : "#898989",
+            transition: "background 0.2s, transform 0.9s",
           }}
+          title={isFolded ? "Expand Agent" : "Collapse Agent"}
+          aria-label={isFolded ? "Expand Agent" : "Collapse Agent"}
         >
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transform: isFolded ? "none" : "rotate(0deg)",
+              transition: "transform 0.3s",
+            }}
+          >
+            {isFolded ? (
+              <>
+                <path d="M21 11.5C21 16.19 16.97 20 12 20C10.61 20 9.28 19.7 8.1 19.15L4 20L4.9 16.49C3.72 15.09 3 13.36 3 11.5C3 6.81 7.03 3 12 3C16.97 3 21 6.81 21 11.5Z" />
+                <circle
+                  cx="9"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="12"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="15"
+                  cy="11.5"
+                  r="0.7"
+                  fill="currentColor"
+                  stroke="none"
+                />
+              </>
+            ) : (
+              <polyline className="" points="8,11 12,15 16,11"></polyline>
+            )}
+          </svg>
+        </button>
 
-      {!chatReady ? (
-        <OnboardingForm onComplete={handleFormComplete} />
-      ) : (
-        <chat-messenger
-          ref={messengerRef}
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "block",
-            "--chat-messenger-color--primary": "#4a3b32",
-            "--chat-messenger-color--on-primary": "#ffffff",
-            "--chat-messenger-color--primary-container": "#c4a898",
-            "--chat-messenger-color--on-primary-container": "#3d2b22",
-            "--chat-messenger-color--secondary": "#927b70",
-            "--chat-messenger-color--on-secondary": "#ffffff",
-            "--chat-messenger-color--surface": "#eeeae6",
-            "--chat-messenger-color--surface-container": "#eeeae6",
-            "--chat-messenger-color--surface-container-high": "#e0dbd6",
-            "--chat-messenger-color--on-surface": "#38414c",
-            "--chat-messenger-color--on-surface-variant": "#6b7280",
-            "--chat-messenger-color--outline": "#d6cfc9",
-            "--chat-messenger-color--outline-variant": "#e8e4e1",
-            "--chat-messenger-color--link": "#4a3b32",
-            "--chat-messenger-internal-chat-window-width": "400px",
-            "--chat-messenger-internal-chat-window-height": "560px",
-          }}
-        >
-          <chat-messenger-container ref={containerRef}>
-            <chat-reset-session-button
-              slot="titlebar-actions"
-              title-text="Start new chat"
-            ></chat-reset-session-button>
-            <chat-messenger-close-button
-              slot="titlebar-actions"
-              title-text="Close"
-            ></chat-messenger-close-button>
-          </chat-messenger-container>
-        </chat-messenger>
-      )}
+        {chatReady && !isFolded && (
+          <button
+            onClick={() => setIsFolded(!isFolded)}
+            style={{
+              position: "absolute",
+              left: isFolded ? "14px" : "270px",
+              top: isFolded ? "16px" : "18px",
+              zIndex: 100000,
+             
+              border: "none",
+              borderRadius: "6px",
+              width: "24px",
+              height: "24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: isFolded ? "#4a3b32" : "#898989",
+              transition: "background 0.2s, transform 0.9s",
+            }}
+            title="Close and clear session"
+            aria-label="Close and clear session"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: isFolded ? "none" : "rotate(0deg)",
+                transition: "transform 0.3s",
+              }}
+            >
+              <polyline className="" points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          opacity: isContentVisible ? 1 : 0,
+          visibility: isContentVisible ? "visible" : "hidden",
+          pointerEvents: isContentVisible ? "auto" : "none",
+          transition: "opacity 0.18s ease",
+        }}
+      >
+        {!chatReady ? (
+          <OnboardingForm onComplete={handleFormComplete} />
+        ) : (
+          <chat-messenger
+            ref={messengerRef}
+            style={{
+              width: "100%",
+              height: "100%",
+              transform: "none",
+              display: "block",
+              position: "relative",
+              inset: "auto",
+              clipPath: "none",
+            }}
+          >
+            <div></div>
+            <chat-messenger-container ref={containerRef}>
+              <chat-reset-session-button
+                slot="titlebar-actions"
+                title-text="Start new chat"
+              ></chat-reset-session-button>
+              <chat-messenger-close-button
+                slot="titlebar-actions"
+                title-text="Close"
+              ></chat-messenger-close-button>
+              <div></div>
+            </chat-messenger-container>
+          </chat-messenger>
+        )}
+      </div>
     </div>
   );
 }

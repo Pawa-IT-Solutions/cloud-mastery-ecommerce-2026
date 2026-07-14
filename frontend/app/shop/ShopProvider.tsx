@@ -90,7 +90,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       }
 
       const aid =
-        sess?.sessionId || sessionStorage.getItem("agent-session-id") || null;
+        sessionStorage.getItem("agent-session-id") || sess?.sessionId || null;
       setActiveSessionId(aid);
   }, []);
 
@@ -101,16 +101,10 @@ useEffect(() => {
   // Optional: Listen for cross-tab changes natively without a loop
   const handleStorageChange = (e: StorageEvent) => {
     if (e.key === CART_STORAGE_KEY) hydrateFromStorage();
-    if (e.key === SESSION_STORAGE_KEY) hydrateFromStorage();
   };
-  const handleSessionChange = () => hydrateFromStorage();
   window.addEventListener("storage", handleStorageChange);
-  window.addEventListener("hazel-session-changed", handleSessionChange);
   
-  return () => {
-    window.removeEventListener("storage", handleStorageChange);
-    window.removeEventListener("hazel-session-changed", handleSessionChange);
-  };
+  return () => window.removeEventListener("storage", handleStorageChange);
 }, [hydrateFromStorage]);
 
 

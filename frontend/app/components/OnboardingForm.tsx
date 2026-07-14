@@ -33,8 +33,7 @@ export default function OnboardingForm({ onComplete }: OnboardingFormProps) {
       const sessionId = crypto.randomUUID();
       await createSession({ sessionId, name: name.trim(), phone: phone.trim(), location: location.trim() });
 
-      // Persist locally first. The canonical backend session ID is synced once
-      // the chat SDK exposes the real agent session ID.
+      // Persist to sessionStorage — cleared automatically on tab close / refresh
       const session = { sessionId, name: name.trim(), phone: phone.trim(), location: location.trim(), createdAt: Date.now() };
       sessionStorage.setItem("hazel-session", JSON.stringify(session));
 
@@ -102,7 +101,7 @@ export default function OnboardingForm({ onComplete }: OnboardingFormProps) {
           <label style={labelStyle}>Full name</label>
           <input
             type="text"
-            placeholder="e.g. Laura Wangari"
+            placeholder="e.g. Amara Osei"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={inputStyle}

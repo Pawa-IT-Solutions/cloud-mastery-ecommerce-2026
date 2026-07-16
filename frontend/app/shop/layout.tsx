@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Space_Grotesk } from "next/font/google";
+import { Hanken_Grotesk } from "next/font/google";
 import { ShopProvider, useShop } from "./ShopProvider";
 import { Toaster } from "react-hot-toast";
 
-const spaceGrotesk = Space_Grotesk({
+const hankenGrotesk = Hanken_Grotesk({
   subsets: ["latin"],
   variable: "--font-shop",
-  weight: ["400", "500", "700"],
 });
 
 function ShopNavigation() {
@@ -26,9 +25,9 @@ function ShopNavigation() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-amber-100 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-40 bg-[#aa9284] text-[#f5ede9] shadow-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-6">
-        <Link href="/shop" className="text-xl font-bold tracking-tight text-slate-900">
+        <Link href="/shop" className="text-2xl font-bold tracking-tight">
           Soko Marketplace
         </Link>
 
@@ -38,7 +37,7 @@ function ShopNavigation() {
           aria-expanded={isMenuOpen}
           aria-controls="shop-mobile-nav"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="inline-flex items-center justify-center rounded-lg border border-amber-200 bg-amber-50 p-2 text-slate-700 transition hover:bg-amber-100 md:hidden"
+          className="inline-flex items-center justify-center rounded-lg border border-[#6b5247] bg-[#4a3b32] p-2 text-[#f5ede9] transition hover:bg-[#6b5247] md:hidden"
         >
           <span className="sr-only">Open menu</span>
           <svg
@@ -68,12 +67,12 @@ function ShopNavigation() {
           </svg>
         </button>
 
-        <nav className="hidden items-center gap-2 rounded-full bg-amber-50 p-1 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
+              className="text-sm font-medium text-[#f5ede9] transition hover:text-[#d6cfc9]"
             >
               {link.label}
             </Link>
@@ -81,7 +80,7 @@ function ShopNavigation() {
           <button
             type="button"
             onClick={resetShopState}
-            className="rounded-full border border-rose-200 bg-white px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
+            className="rounded-full border border-[#6b5247] bg-[#6b5247] px-4 py-1.5 text-sm font-medium text-[#f5ede9] transition hover:bg-[#d6cfc9] hover:text-[#4a3b32]"
           >
             Reset
           </button>
@@ -89,14 +88,14 @@ function ShopNavigation() {
       </div>
 
       {isMenuOpen && (
-        <nav id="shop-mobile-nav" className="border-t border-amber-100 px-4 py-3 md:hidden">
-          <div className="flex flex-col gap-2">
+        <nav id="shop-mobile-nav" className="border-t border-[#6b5247] bg-[#4a3b32] px-4 py-3 md:hidden">
+          <div className="flex flex-col gap-1">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-amber-100"
+                className="block rounded-lg px-3 py-2 text-sm font-medium text-[#f5ede9] transition hover:bg-[#6b5247]"
               >
                 {link.label}
               </Link>
@@ -107,7 +106,7 @@ function ShopNavigation() {
                 resetShopState();
                 setIsMenuOpen(false);
               }}
-              className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
+              className="w-full text-left rounded-lg px-3 py-2 text-sm font-medium text-[#f5ede9] transition hover:bg-[#6b5247]"
             >
               Reset
             </button>
@@ -122,7 +121,7 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
   return (
     <ShopProvider>
       <div
-        className={`${spaceGrotesk.variable} min-h-screen bg-[radial-gradient(circle_at_20%_20%,#fff1d6_0,#fff9ec_35%,#f6f7fb_100%)] font-sans text-slate-900`}
+        className={`${hankenGrotesk.variable} min-h-screen bg-[#f5f1ee] font-sans text-[#1f2937]`}
       >
         <ShopNavigation />
         <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">{children}</main>

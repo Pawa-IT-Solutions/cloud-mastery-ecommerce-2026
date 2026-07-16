@@ -135,7 +135,7 @@ export default function ShopProductsPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Browse Products</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#4a3b32]">Browse Products</h1>
         <p className="mt-2 text-sm text-slate-600">
           Shop by category and add items to your cart.
         </p>
@@ -147,10 +147,10 @@ export default function ShopProductsPage() {
             key={category}
             type="button"
             onClick={() => setActiveCategory(category)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
               activeCategory === category
-                ? "bg-slate-900 text-white"
-                : "border border-slate-200 bg-white text-slate-700 hover:border-slate-900"
+                ? "bg-[#4a3b32] text-[#f5ede9]"
+                : "border border-[#d6cfc9] bg-white text-[#4a3b32] hover:bg-[#f5f1ee]"
             }`}
           >
             {category}
@@ -169,10 +169,10 @@ export default function ShopProductsPage() {
             return (
               <article
                 key={product.id}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <Link href={`/shop/products/${encodeURIComponent(product.id)}`} className="block">
-                  <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+                  <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                     <Image
                       src={getProductImage(product)}
                       alt={product.name}
@@ -181,13 +181,13 @@ export default function ShopProductsPage() {
                       className="object-cover"
                     />
                   </div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-amber-600">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {product.category}
                   </p>
                   <h2 className="mt-1 text-lg font-bold text-slate-900">{product.name}</h2>
                   <div className="mt-3 flex items-center gap-4 text-sm text-slate-600">
                     <p className="flex items-center gap-1">
-                      <span className="text-amber-500">★</span>
+                      <span className="text-slate-900">★</span>
                       <span className="font-semibold text-slate-900">{getFakeRating(product)}</span>
                     </p>
                     <p>
@@ -206,7 +206,7 @@ export default function ShopProductsPage() {
                     addToCart(product);
                     toast.success(`${product.name} added to cart`);
                   }}
-                  className="mt-4 w-full rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                  className="mt-4 w-full rounded-xl bg-[#4a3b32] px-4 py-2 text-sm font-semibold text-[#f5ede9] transition hover:bg-[#6b5247] disabled:cursor-not-allowed disabled:bg-[#eeeae6] disabled:text-[#6b7280]"
                 >
                   {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
@@ -217,7 +217,7 @@ export default function ShopProductsPage() {
       )}
 
       {!loading && filteredProducts.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-slate-700">
           <p>
             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
             {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length}
@@ -227,7 +227,7 @@ export default function ShopProductsPage() {
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
@@ -238,7 +238,7 @@ export default function ShopProductsPage() {
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
             </button>

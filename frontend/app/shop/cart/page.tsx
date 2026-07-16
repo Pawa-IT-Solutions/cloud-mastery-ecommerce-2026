@@ -127,18 +127,18 @@ export default function ShopCartPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Cart</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#4a3b32]">Your Cart</h1>
         <p className="mt-2 text-sm text-slate-600">
           Review your selected items and run a checkout.
         </p>
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
           <p className="text-slate-600">Your cart is empty.</p>
           <Link
             href="/shop/products"
-            className="mt-4 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="mt-4 inline-block rounded-xl bg-[#4a3b32] px-5 py-2 text-sm font-semibold text-[#f5ede9] transition hover:bg-[#6b5247]"
           >
             Continue Shopping
           </Link>
@@ -149,7 +149,7 @@ export default function ShopCartPage() {
             {cartItems.map((item) => (
               <article
                 key={item.id}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-lg font-bold text-slate-900">{item.name}</h2>
@@ -171,17 +171,17 @@ export default function ShopCartPage() {
                     <button
                       type="button"
                       onClick={() => updateCartQuantity(item.id, item.cartQuantity - 1)}
-                      className="h-8 w-8 rounded-full border border-slate-300 text-sm font-bold text-slate-700"
+                      className="h-8 w-8 rounded-md border border-gray-300 text-sm font-medium text-slate-700 hover:bg-gray-50"
                     >
                       -
                     </button>
-                    <span className="min-w-8 text-center text-sm font-semibold">
+                    <span className="min-w-8 text-center text-sm font-medium">
                       {item.cartQuantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => updateCartQuantity(item.id, item.cartQuantity + 1)}
-                      className="h-8 w-8 rounded-full border border-slate-300 text-sm font-bold text-slate-700"
+                      className="h-8 w-8 rounded-md border border-gray-300 text-sm font-medium text-slate-700 hover:bg-gray-50"
                     >
                       +
                     </button>
@@ -191,10 +191,10 @@ export default function ShopCartPage() {
             ))}
           </div>
 
-          <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-900">Checkout Summary</h2>
+          <aside className="h-fit rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-bold text-[#4a3b32]">Checkout Summary</h2>
 
-            <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
+            <div className="mt-4 rounded-lg bg-gray-50 border border-gray-100 p-4 text-sm text-slate-700">
               <p className="mt-2 text-lg font-bold text-slate-900">
                 Total: KES {cartTotal.toLocaleString()}
               </p>
@@ -204,7 +204,7 @@ export default function ShopCartPage() {
               type="button"
               disabled={isCheckingOut}
               onClick={onCheckout}
-              className="mt-4 w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-emerald-300"
+              className="mt-4 w-full rounded-xl bg-[#4a3b32] px-4 py-3 text-sm font-semibold text-[#f5ede9] transition hover:bg-[#6b5247] disabled:cursor-not-allowed disabled:bg-[#eeeae6] disabled:text-[#6b7280]"
             >
               {isCheckingOut ? "Processing..." : "Checkout via Pesapal"}
             </button>

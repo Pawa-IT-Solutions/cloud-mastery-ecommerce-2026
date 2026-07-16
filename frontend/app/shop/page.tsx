@@ -87,44 +87,43 @@ export default async function ShopHome() {
     <>
       <section className="space-y-16 pb-16">
         {/* Hero Section */}
-        <div className="overflow-hidden rounded-3xl border border-amber-200 bg-[linear-gradient(120deg,#fff3cc_0%,#ffe8df_45%,#eaf4ff_100%)] p-8 shadow-sm md:p-12">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
+        <div className="overflow-hidden rounded-3xl bg-[#aa9284] text-[#f5ede9] shadow-2xl relative isolate p-8 md:p-16">
+          <div className="grid items-center gap-8 lg:grid-cols-2 relative z-10">
             <div>
-              <p className="mb-3 inline-block rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-amber-700">
-                CUSTOMER STORE
+              <p className="mb-4 inline-block rounded-full bg-[#6b5247] px-4 py-1.5 text-xs font-bold tracking-widest text-white">
+                PREMIUM MARKETPLACE
               </p>
-              <h1 className="max-w-xl text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
-                Fresh picks for every room in your home.
+              <h1 className="max-w-xl text-4xl font-bold leading-tight text-white md:text-6xl md:leading-[1.1]">
+                Curated essentials for the modern lifestyle.
               </h1>
-              <p className="mt-4 max-w-2xl text-base text-slate-700 md:text-lg">
-                Discover products by category, add items to cart, and run through a
-                smooth mock checkout experience.
+              <p className="mt-6 max-w-2xl text-base text-[#d6cfc9] md:text-xl font-medium">
+                Experience seamless browsing, handpicked selections, and a refined shopping journey tailored for you.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href="/shop/products"
-                  className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+                  className="rounded-xl bg-[#f5ede9] px-8 py-4 text-sm font-bold text-[#4a3b32] transition hover:bg-white hover:scale-105"
                 >
-                  Browse Products
+                  Explore Collection
                 </Link>
                 <Link
                   href="/shop/orders"
-                  className="rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-900"
+                  className="rounded-xl border-2 border-[#6b5247] bg-transparent px-8 py-4 text-sm font-bold text-[#f5ede9] transition hover:bg-[#6b5247]"
                 >
-                  View Ordered Items
+                  Order History
                 </Link>
               </div>
             </div>
 
-            <div className="relative mx-auto h-64 w-full max-w-md overflow-hidden rounded-2xl border border-amber-100 bg-white/70 shadow-sm md:h-72">
+            <div className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-3xl shadow-2xl">
               <Image
                 src="/mastery_commerce.png"
-                alt="Cloud Mastery Commerce"
+                alt="Premium Commerce"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
-                className="object-cover"
+                className="object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>
           </div>
@@ -140,7 +139,7 @@ export default async function ShopHome() {
                 href={`/shop/products?category=${encodeURIComponent(
                   slugifyCategory(category)
                 )}`}
-                className="group relative aspect-square overflow-hidden rounded-3xl bg-slate-100 shadow-sm transition hover:shadow-md"
+                className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 border border-gray-200 shadow-sm transition hover:shadow-md"
               >
                 <img
                   src={
@@ -150,8 +149,8 @@ export default async function ShopHome() {
                   alt={category}
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                <h3 className="absolute bottom-4 left-4 text-base font-serif tracking-wide text-white md:bottom-5 md:left-5 md:text-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                <h3 className="absolute bottom-4 left-4 text-base font-bold tracking-wide text-white md:bottom-5 md:left-5 md:text-lg">
                   {category}
                 </h3>
               </Link>
@@ -162,7 +161,7 @@ export default async function ShopHome() {
         {/* Latest Finds Section */}
         <div>
           <div className="mb-6 flex items-baseline justify-between border-b border-slate-100 pb-4">
-            <h2 className="text-3xl font-serif text-[#4a3b32]">Latest Finds</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-[#4a3b32]">Latest Finds</h2>
             <Link
               href="/shop/products"
               className="flex items-center gap-1 text-sm font-semibold text-slate-800 transition hover:text-slate-600"
@@ -179,8 +178,8 @@ export default async function ShopHome() {
                   href={`/shop/products/${encodeURIComponent(product.id)}`}
                   className="group block cursor-pointer"
                 >
-                  <div className="relative mb-4 aspect-square overflow-hidden rounded-xl bg-stone-100">
-                    <div className="absolute left-3 top-3 z-10 rounded-full bg-[#e8efe6] px-3 py-1 text-xs font-semibold text-[#5a7054]">
+                  <div className="relative mb-4 aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                    <div className="absolute left-3 top-3 z-10 rounded-md bg-white px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-900 shadow-sm">
                       New
                     </div>
                     <img
@@ -206,12 +205,12 @@ export default async function ShopHome() {
       </section>
 
       {/* Footer Section */}
-      <footer className="w-full bg-[#eeeae6] py-12 px-6 md:px-12">
+      <footer className="w-full border-t border-gray-200 bg-white px-6 py-12 md:px-12">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-10 md:flex-row">
-          
+
           {/* Left Text */}
           <div className="max-w-xs">
-            <h2 className="text-xl font-serif font-medium text-[#4a3b32]">
+            <h2 className="text-xl font-bold tracking-tight text-[#4a3b32]">
               Soko Marketplace
             </h2>
             <p className="mt-3 text-sm text-slate-600">
@@ -221,21 +220,21 @@ export default async function ShopHome() {
 
           {/* Right Links Grid */}
           <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm text-slate-600 sm:grid-cols-3 md:text-right">
-            
+
             <div className="flex flex-col space-y-3">
               <Link href="#" className="hover:text-slate-900">Appliances</Link>
               <Link href="#" className="hover:text-slate-900">Clothing</Link>
               <Link href="#" className="hover:text-slate-900">Health & Beauty</Link>
               <Link href="#" className="hover:text-slate-900">Toys</Link>
             </div>
-            
+
             <div className="flex flex-col space-y-3">
               <Link href="#" className="hover:text-slate-900">Automotive</Link>
               <Link href="#" className="hover:text-slate-900">Electronics</Link>
               <Link href="#" className="hover:text-slate-900">Home & Garden</Link>
               <Link href="#" className="hover:text-slate-900">Privacy Policy</Link>
             </div>
-            
+
             <div className="flex flex-col space-y-3">
               <Link href="#" className="hover:text-slate-900">Books</Link>
               <Link href="#" className="hover:text-slate-900">Furniture</Link>

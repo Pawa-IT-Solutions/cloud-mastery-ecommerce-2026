@@ -162,20 +162,20 @@ export default function CarPartsPage() {
 
   return (
     <section className="space-y-7 pb-8">
-      <div className="rounded-3xl border border-blue-200 bg-[linear-gradient(120deg,#e0f2fe_0%,#eef2ff_45%,#fffbeb_100%)] p-6 md:p-8">
-        <p className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-blue-700">
+      <div className="rounded-3xl bg-[#4a3b32] text-[#f5ede9] p-6 md:p-8 shadow-xl">
+        <p className="inline-block rounded-full bg-[#6b5247] px-4 py-1.5 text-xs font-bold tracking-widest text-white">
           AUTO PARTS CATALOG
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-          Car Parts
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
+          Premium Auto Parts
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-700 md:text-base">
+        <p className="mt-2 text-sm text-[#d6cfc9] md:text-base font-medium">
           Explore battery options by make, branch, and vehicle fitment powered by
           live catalog data.
         </p>
       </div>
 
-      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2">
+      <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 md:grid-cols-2">
         <label className="text-sm font-semibold text-slate-700">
           Filter by make
           <select
@@ -208,13 +208,13 @@ export default function CarPartsPage() {
       </div>
 
       {loading ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600">
+        <p className="rounded-xl border border-gray-200 bg-white p-6 text-slate-600">
           Loading car parts...
         </p>
       ) : null}
 
       {!loading && loadError ? (
-        <p className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+        <p className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
           {loadError}
         </p>
       ) : null}
@@ -225,8 +225,8 @@ export default function CarPartsPage() {
           const isOutOfStock = availableStock <= 0;
 
           return (
-          <article key={part.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+          <article key={part.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
               <Image
                 src={getPartImage(part)}
                 alt={`${part.brand} ${part.make} ${part.model}`}
@@ -237,13 +237,13 @@ export default function CarPartsPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+              <span className="rounded-md bg-[#eeeae6] px-2.5 py-1 text-xs font-bold text-[#4a3b32] uppercase">
                 {part.make} {part.model}
               </span>
-              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+              <span className="rounded-md bg-[#eeeae6] px-2.5 py-1 text-xs font-bold text-[#4a3b32] uppercase">
                 {part.batteryType}
               </span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-md bg-[#eeeae6] px-2.5 py-1 text-xs font-bold text-[#4a3b32] uppercase">
                 {part.branchLocation}
               </span>
             </div>
@@ -255,7 +255,7 @@ export default function CarPartsPage() {
 
             <div className="mt-3 flex items-center gap-4 text-sm text-slate-600">
               <p className="flex items-center gap-1">
-                <span className="text-amber-500">★</span>
+                <span className="text-slate-900">★</span>
                 <span className="font-semibold text-slate-900">{getFakeRating(part)}</span>
               </p>
               <p>
@@ -295,7 +295,7 @@ export default function CarPartsPage() {
                 addToCart(toShopProduct(part));
                 toast.success(`${part.brand} ${part.model} added to cart`);
               }}
-              className="mt-4 w-full rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+              className="mt-4 w-full rounded-xl bg-[#4a3b32] px-4 py-2 text-sm font-semibold text-[#f5ede9] transition hover:bg-[#6b5247] disabled:cursor-not-allowed disabled:bg-[#eeeae6] disabled:text-[#6b7280]"
             >
               {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </button>
@@ -305,7 +305,7 @@ export default function CarPartsPage() {
       </div>
 
       {!loading && visibleParts.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-slate-700">
           <p>
             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
             {Math.min(currentPage * ITEMS_PER_PAGE, visibleParts.length)} of {visibleParts.length}
@@ -315,7 +315,7 @@ export default function CarPartsPage() {
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
@@ -326,7 +326,7 @@ export default function CarPartsPage() {
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-300 px-3 py-1.5 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
             </button>
@@ -335,7 +335,7 @@ export default function CarPartsPage() {
       ) : null}
 
       {!loading && visibleParts.length === 0 ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600">
+        <p className="rounded-xl border border-gray-200 bg-white p-6 text-slate-600">
           No parts found for this filter combination.
         </p>
       ) : null}
